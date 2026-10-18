@@ -1,0 +1,1102 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light" />
+    <link rel="icon" href="data:," />
+    <title>每週工作日誌表</title>
+    <style>
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        background: #e9e9e9;
+        color: #000;
+        font-family: "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", sans-serif;
+        -webkit-text-size-adjust: 100%;
+      }
+      .sheet {
+        max-width: 960px;
+        margin: 0 auto;
+        background: #fff;
+        padding: 20px 16px 28px;
+      }
+
+      /* ---------- 表頭 ---------- */
+      .head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 8px 24px;
+        border-bottom: 3px double #000;
+        padding-bottom: 10px;
+        margin-bottom: 18px;
+      }
+      .head h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 2px;
+      }
+      .head-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .head-title select {
+        width: auto;
+        border: 1.5px solid #000;
+        background: #fff;
+        font-size: 17px;
+        padding: 5px 8px;
+      }
+      .head-meta { font-size: 15px; line-height: 1.9; }
+      .head-meta .meta-line { display: flex; align-items: baseline; gap: 4px; white-space: nowrap; }
+      .head-meta select {
+        width: auto;
+        border: none;
+        border-bottom: 1px solid #000;
+        font: inherit;
+        background: transparent;
+        padding: 0 2px;
+      }
+      .picker .cat-editor input[type="text"] { flex: none; width: 110px; }
+
+      /* ---------- 區塊 ---------- */
+      section { margin-bottom: 22px; }
+      h2 {
+        margin: 0 0 8px;
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+      h2 .no {
+        display: inline-block;
+        border: 1.5px solid #000;
+        padding: 0 7px;
+        margin-right: 8px;
+        font-size: 15px;
+        line-height: 1.5;
+      }
+
+      /* ---------- 表格 ---------- */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        background: #fff;
+      }
+      /* 業績表格欄位多：窄螢幕時此區塊可橫向捲動 */
+      .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .table-scroll table { min-width: 520px; }
+      th, td {
+        border: 1px solid #000;
+        padding: 5px 6px;
+        font-size: 15px;
+        vertical-align: middle;
+      }
+      th {
+        background: #f0f0f0;
+        font-weight: 700;
+        text-align: center;
+      }
+      td.num-col, th.num-col { text-align: center; }
+
+      input[type="text"], input[type="number"], select, textarea {
+        width: 100%;
+        border: none;
+        background: transparent;
+        font: inherit;
+        font-size: 16px;
+        color: #000;
+        padding: 2px;
+      }
+      input:focus, select:focus, textarea:focus {
+        outline: 1px solid #000;
+        outline-offset: -1px;
+        background: #fff;
+      }
+      input[type="number"] { text-align: center; }
+      select { cursor: pointer; }
+      textarea {
+        border: 1px solid #000;
+        min-height: 110px;
+        resize: vertical;
+        line-height: 1.6;
+        padding: 8px;
+      }
+
+      .del-btn {
+        border: 1px solid #000;
+        background: #fff;
+        color: #000;
+        font-size: 14px;
+        line-height: 1;
+        width: 26px;
+        height: 26px;
+        padding: 0;
+        cursor: pointer;
+      }
+      .del-btn:hover { background: #000; color: #fff; }
+
+      .add-row-btn {
+        margin-top: 8px;
+        border: 1px solid #000;
+        background: #fff;
+        color: #000;
+        font-size: 14px;
+        padding: 6px 14px;
+        cursor: pointer;
+      }
+      .add-row-btn:hover { background: #000; color: #fff; }
+
+      /* ---------- 分類自訂輸入 ---------- */
+      .cat-editor { display: none; margin-top: 4px; gap: 4px; }
+      .cat-editor.open { display: flex; }
+      .cat-editor input[type="text"] {
+        flex: 1;
+        width: auto;
+        min-width: 0;
+        border: 1px solid #000;
+        background: #fff;
+      }
+      .cat-ok-btn {
+        border: 1px solid #000;
+        background: #000;
+        color: #fff;
+        font-size: 14px;
+        padding: 2px 10px;
+        cursor: pointer;
+        font-family: inherit;
+        white-space: nowrap;
+      }
+
+      /* ---------- 按鈕列 ---------- */
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 26px;
+        border-top: 1px solid #000;
+        padding-top: 16px;
+      }
+      .actions button {
+        border: 1.5px solid #000;
+        background: #fff;
+        color: #000;
+        font-size: 16px;
+        padding: 10px 22px;
+        cursor: pointer;
+        font-family: inherit;
+      }
+      .actions button.primary { background: #000; color: #fff; }
+      .actions button:hover { opacity: 0.75; }
+      .actions button:disabled { opacity: 0.4; cursor: default; }
+
+      .msg {
+        margin-top: 14px;
+        font-size: 15px;
+        min-height: 1.4em;
+      }
+      .msg:empty { display: none; }
+      .msg.box {
+        border: 1px solid #000;
+        padding: 8px 12px;
+        background: #f7f7f7;
+      }
+
+      /* ---------- 手機 ---------- */
+      @media (max-width: 560px) {
+        .sheet { padding: 14px 10px 22px; }
+        .head h1 { font-size: 23px; }
+        .head-meta { white-space: normal; font-size: 14px; }
+        th, td { font-size: 14px; padding: 4px 3px; }
+        .actions button { flex: 1 1 40%; padding: 10px 6px; }
+      }
+
+      /* ---------- 列印 ---------- */
+      @media print {
+        body { background: #fff; }
+        .sheet { max-width: none; padding: 0; }
+        .actions, .add-row-btn, .del-btn, .msg, .cat-editor { display: none !important; }
+        .head-title select, .head-meta select { border: none; }
+        .table-scroll { overflow: visible; }
+        .table-scroll table { min-width: 0; }
+        input, select, textarea {
+          outline: none !important;
+          -webkit-appearance: none;
+          appearance: none;
+        }
+        select { pointer-events: none; }
+        textarea { border: 1px solid #000; }
+        th { background: #f0f0f0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        section { page-break-inside: avoid; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sheet">
+
+      <!-- 表頭 -->
+      <div class="head">
+        <div class="head-title">
+          <div id="projectField"></div>
+          <h1>本週工作進度</h1>
+        </div>
+        <div class="head-meta">
+          <div class="meta-line">日期：<span id="todayText"></span></div>
+          <div class="meta-line">報告人：<div id="reporterField"></div></div>
+        </div>
+      </div>
+
+      <!-- 1. 上週業績狀況 -->
+      <section>
+        <h2><span class="no">一</span>上週業績狀況</h2>
+        <div class="table-scroll">
+        <table id="perfTable">
+          <colgroup>
+            <col style="width:24%" />
+            <col style="width:15%" />
+            <col style="width:15%" />
+            <col style="width:15%" />
+            <col style="width:15%" />
+            <col style="width:15%" />
+            <col style="width:40px" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>案場</th>
+              <th>來人組數</th>
+              <th>來電通數</th>
+              <th>回訪組數</th>
+              <th>成交組數</th>
+              <th>簽約組數</th>
+              <th aria-label="刪除"></th>
+            </tr>
+          </thead>
+          <tbody id="perfBody"></tbody>
+        </table>
+        </div>
+        <button type="button" class="add-row-btn" id="addPerf">＋ 新增一列</button>
+      </section>
+
+      <!-- 2. 上週工作事項 -->
+      <section>
+        <h2><span class="no">二</span>上週工作事項</h2>
+        <table id="lastWeekTable">
+          <colgroup>
+            <col style="width:8%" />
+            <col style="width:24%" />
+            <col style="width:44%" />
+            <col style="width:16%" />
+            <col style="width:8%" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>編號</th>
+              <th>分類</th>
+              <th>事項內容</th>
+              <th>狀態</th>
+              <th aria-label="刪除"></th>
+            </tr>
+          </thead>
+          <tbody id="lastWeekBody"></tbody>
+        </table>
+        <button type="button" class="add-row-btn" id="addLastWeek">＋ 新增一列</button>
+      </section>
+
+      <!-- 3. 預計本週工作事項 -->
+      <section>
+        <h2><span class="no">三</span>預計本週工作事項</h2>
+        <table id="planTable">
+          <colgroup>
+            <col style="width:8%" />
+            <col style="width:24%" />
+            <col style="width:60%" />
+            <col style="width:8%" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>編號</th>
+              <th>分類</th>
+              <th>事項內容</th>
+              <th aria-label="刪除"></th>
+            </tr>
+          </thead>
+          <tbody id="planBody"></tbody>
+        </table>
+        <button type="button" class="add-row-btn" id="addPlan">＋ 新增一列</button>
+      </section>
+
+      <!-- 4. 廣告策略方向及內容 -->
+      <section>
+        <h2><span class="no">四</span>廣告策略方向及內容</h2>
+        <textarea id="adStrategy" aria-label="廣告策略方向及內容"></textarea>
+      </section>
+
+      <!-- 按鈕列 -->
+      <div class="actions">
+        <button type="button" id="loadBtn">載入上週資料</button>
+        <button type="button" id="submitBtn" class="primary">送出儲存</button>
+        <button type="button" id="newWeekBtn">開新的一週</button>
+        <button type="button" id="printBtn">列印</button>
+      </div>
+      <div class="msg" id="msg" role="status"></div>
+
+    </div>
+
+    <script>
+      // ============================================================
+      // 後端網址（正式版 Google Apps Script 部署網址）
+      const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwTeqRXh4BLKpQTWd7xLXX5FyBI0am1elxTeuMO6kpNpJ2Q2p4cMFAU2uEeeVDwyl7U/exec";
+      // ============================================================
+
+      var CATEGORIES = ["守善富琚", "守善大悅", "印象好好", "公司", "其他"];
+      var STATUSES = ["完成", "進行中", "未完成"];
+      var WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
+
+      var today = new Date();
+      var rocYear = today.getFullYear() - 1911;
+      var dateText = rocYear + "年" + (today.getMonth() + 1) + "月" + today.getDate() + "日 (" + WEEKDAYS[today.getDay()] + ")";
+      var todayDateText = dateText;
+      document.getElementById("todayText").textContent = dateText;
+
+      /* ---------- 表頭下拉（案名／報告人，可新增、自訂值持久化） ---------- */
+      var PICKER_ADD_VALUE = "__add_picker__";
+
+      function loadPickerCustom(key, base) {
+        var list = [];
+        try {
+          var saved = JSON.parse(localStorage.getItem(key) || "[]");
+          if (Array.isArray(saved)) {
+            saved.forEach(function (s) {
+              if (typeof s === "string" && s && base.indexOf(s) < 0 && list.indexOf(s) < 0) list.push(s);
+            });
+          }
+        } catch (e) {}
+        return list;
+      }
+
+      // 通用「可新增」下拉：預設空白＋預設選項＋自訂選項，最後一項固定為新增入口
+      function makePicker(config) {
+        var custom = loadPickerCustom(config.storageKey, config.base);
+
+        var wrap = document.createElement("div");
+        wrap.className = "picker";
+
+        var sel = document.createElement("select");
+        sel.id = config.id;
+        sel.setAttribute("aria-label", config.ariaLabel);
+        var emptyOpt = document.createElement("option");
+        emptyOpt.value = "";
+        emptyOpt.textContent = "請選擇";
+        sel.appendChild(emptyOpt);
+        config.base.concat(custom).forEach(function (v) {
+          var o = document.createElement("option");
+          o.value = v;
+          o.textContent = v;
+          sel.appendChild(o);
+        });
+        var addOpt = document.createElement("option");
+        addOpt.value = PICKER_ADD_VALUE;
+        addOpt.textContent = config.addText;
+        sel.appendChild(addOpt);
+        sel._prevValue = "";
+
+        // 選到新增項時才出現的小輸入列（樣式沿用分類編輯列）
+        var editor = document.createElement("div");
+        editor.className = "cat-editor";
+        var input = document.createElement("input");
+        input.type = "text";
+        input.placeholder = config.placeholder;
+        input.setAttribute("aria-label", config.placeholder);
+        var okBtn = document.createElement("button");
+        okBtn.type = "button";
+        okBtn.className = "cat-ok-btn";
+        okBtn.textContent = "確定";
+        editor.appendChild(input);
+        editor.appendChild(okBtn);
+
+        sel.addEventListener("change", function () {
+          if (sel.value === PICKER_ADD_VALUE) {
+            editor.classList.add("open");
+            input.value = "";
+            input.focus();
+          } else {
+            sel._prevValue = sel.value;
+            editor.classList.remove("open");
+          }
+        });
+
+        function confirmNew() {
+          var name = input.value.trim();
+          editor.classList.remove("open");
+          if (!name) {
+            sel.value = sel._prevValue;
+            return;
+          }
+          if (config.base.indexOf(name) < 0 && custom.indexOf(name) < 0) {
+            custom.push(name);
+            try { localStorage.setItem(config.storageKey, JSON.stringify(custom)); } catch (e) {}
+            var o = document.createElement("option");
+            o.value = name;
+            o.textContent = name;
+            sel.insertBefore(o, addOpt);
+          }
+          sel.value = name;
+          sel._prevValue = name;
+        }
+        okBtn.addEventListener("click", confirmNew);
+        input.addEventListener("keydown", function (ev) {
+          if (ev.key === "Enter") { ev.preventDefault(); confirmNew(); }
+        });
+
+        wrap.appendChild(sel);
+        wrap.appendChild(editor);
+
+        return {
+          el: wrap,
+          getValue: function () {
+            // 停在新增項未確認時，退回上一個選取值
+            return sel.value === PICKER_ADD_VALUE ? (sel._prevValue || "") : sel.value;
+          },
+          setValue: function (v) {
+            // 載入資料回填用：值不在選項中時自動加入為新選項並選取
+            v = (v || "").toString().trim();
+            if (!v) return;
+            var found = false;
+            for (var i = 0; i < sel.options.length; i++) {
+              if (sel.options[i].value === v) { found = true; break; }
+            }
+            if (!found) {
+              if (config.base.indexOf(v) < 0 && custom.indexOf(v) < 0) {
+                custom.push(v);
+                try { localStorage.setItem(config.storageKey, JSON.stringify(custom)); } catch (e) {}
+              }
+              var o = document.createElement("option");
+              o.value = v;
+              o.textContent = v;
+              sel.insertBefore(o, addOpt);
+            }
+            sel.value = v;
+            sel._prevValue = v;
+            editor.classList.remove("open");
+          },
+          reset: function () {
+            sel.value = "";
+            sel._prevValue = "";
+            editor.classList.remove("open");
+            input.value = "";
+          }
+        };
+      }
+
+      // 標題前方：案名下拉
+      var projectPicker = makePicker({
+        id: "projectPicker",
+        ariaLabel: "選擇案名",
+        base: ["守善大悅", "守善富琚", "新祐京璽", "謙知樹"],
+        storageKey: "weeklyLogCustomProjects",
+        addText: "＋新增案名…",
+        placeholder: "新案名"
+      });
+      document.getElementById("projectField").appendChild(projectPicker.el);
+
+      // 報告人：人名下拉
+      var reporterPicker = makePicker({
+        id: "reporterPicker",
+        ariaLabel: "選擇報告人",
+        base: ["黃彥智", "戴豪廷", "陳泓駪"],
+        storageKey: "weeklyLogCustomNames",
+        addText: "＋新增人名…",
+        placeholder: "新人名"
+      });
+      document.getElementById("reporterField").appendChild(reporterPicker.el);
+
+      var msgEl = document.getElementById("msg");
+      function showMsg(text) {
+        msgEl.textContent = text;
+        msgEl.className = text ? "msg box" : "msg";
+      }
+
+      /* ---------- 動態列 ---------- */
+      function makeSelect(options, className, value) {
+        var sel = document.createElement("select");
+        sel.className = className;
+        options.forEach(function (opt) {
+          var o = document.createElement("option");
+          o.value = opt;
+          o.textContent = opt;
+          sel.appendChild(o);
+        });
+        if (value && options.indexOf(value) >= 0) sel.value = value;
+        return sel;
+      }
+
+      // 分類：真正的下拉選單，最後一項「＋新增分類…」可自訂新分類
+      var ADD_CAT_VALUE = "__add_category__";
+      var CUSTOM_CATS_KEY = "weeklyLogCustomCats";
+
+      // 自訂分類存 localStorage，跨週保留（沙盒環境擋存取時自動略過）
+      var customCats = [];
+      try {
+        var savedCats = JSON.parse(localStorage.getItem(CUSTOM_CATS_KEY) || "[]");
+        if (Array.isArray(savedCats)) {
+          customCats = savedCats.filter(function (s) {
+            return typeof s === "string" && s && CATEGORIES.indexOf(s) < 0;
+          });
+        }
+      } catch (e) { customCats = []; }
+
+      function saveCustomCats() {
+        try { localStorage.setItem(CUSTOM_CATS_KEY, JSON.stringify(customCats)); } catch (e) {}
+      }
+
+      function allCategories() { return CATEGORIES.concat(customCats); }
+
+      // 把新分類存起來，並同步加進畫面上所有分類選單（插在「＋新增分類…」之前）
+      function addCustomCategory(name) {
+        if (CATEGORIES.indexOf(name) < 0 && customCats.indexOf(name) < 0) {
+          customCats.push(name);
+          saveCustomCats();
+        }
+        document.querySelectorAll("select.item-cat").forEach(function (sel) {
+          var exists = false;
+          for (var i = 0; i < sel.options.length; i++) {
+            if (sel.options[i].value === name) exists = true;
+          }
+          if (!exists) {
+            var o = document.createElement("option");
+            o.value = name;
+            o.textContent = name;
+            sel.insertBefore(o, sel.options[sel.options.length - 1]);
+          }
+        });
+      }
+
+      function makeCategorySelect(value) {
+        var wrap = document.createElement("div");
+
+        var sel = document.createElement("select");
+        sel.className = "item-cat";
+        sel.setAttribute("aria-label", "分類");
+        allCategories().forEach(function (cat) {
+          var o = document.createElement("option");
+          o.value = cat;
+          o.textContent = cat;
+          sel.appendChild(o);
+        });
+        var addOpt = document.createElement("option");
+        addOpt.value = ADD_CAT_VALUE;
+        addOpt.textContent = "＋新增分類…";
+        sel.appendChild(addOpt);
+        if (value) {
+          if (allCategories().indexOf(value) >= 0) {
+            sel.value = value;
+          } else {
+            // 載入的舊資料若含清單外的分類，補成選項並選取
+            var o2 = document.createElement("option");
+            o2.value = value;
+            o2.textContent = value;
+            sel.insertBefore(o2, addOpt);
+            sel.value = value;
+          }
+        }
+        sel._prevValue = sel.value === ADD_CAT_VALUE ? "" : sel.value;
+
+        // 選到「＋新增分類…」時才出現的小輸入列
+        var editor = document.createElement("div");
+        editor.className = "cat-editor";
+        var input = document.createElement("input");
+        input.type = "text";
+        input.className = "cat-new-input";
+        input.placeholder = "新分類名稱";
+        input.setAttribute("aria-label", "新分類名稱");
+        var okBtn = document.createElement("button");
+        okBtn.type = "button";
+        okBtn.className = "cat-ok-btn";
+        okBtn.textContent = "確定";
+        editor.appendChild(input);
+        editor.appendChild(okBtn);
+
+        sel.addEventListener("change", function () {
+          if (sel.value === ADD_CAT_VALUE) {
+            editor.classList.add("open");
+            input.value = "";
+            input.focus();
+          } else {
+            sel._prevValue = sel.value;
+            editor.classList.remove("open");
+          }
+        });
+
+        function confirmNewCat() {
+          var name = input.value.trim();
+          editor.classList.remove("open");
+          if (!name) {
+            sel.value = sel._prevValue || allCategories()[0];
+            return;
+          }
+          addCustomCategory(name);
+          sel.value = name;
+          sel._prevValue = name;
+        }
+        okBtn.addEventListener("click", confirmNewCat);
+        input.addEventListener("keydown", function (ev) {
+          if (ev.key === "Enter") { ev.preventDefault(); confirmNewCat(); }
+        });
+
+        wrap.appendChild(sel);
+        wrap.appendChild(editor);
+        return wrap;
+      }
+
+      function makeDeleteBtn(onClick) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "del-btn";
+        btn.textContent = "×";
+        btn.setAttribute("aria-label", "刪除此列");
+        btn.addEventListener("click", onClick);
+        return btn;
+      }
+
+      function renumber(tbody) {
+        var rows = tbody.querySelectorAll("tr");
+        rows.forEach(function (row, i) {
+          row.querySelector(".row-no").textContent = (i + 1) + ".";
+        });
+      }
+
+      function addLastWeekRow(data) {
+        data = data || {};
+        var tbody = document.getElementById("lastWeekBody");
+        var tr = document.createElement("tr");
+
+        var tdNo = document.createElement("td");
+        tdNo.className = "num-col row-no";
+        tr.appendChild(tdNo);
+
+        var tdCat = document.createElement("td");
+        tdCat.appendChild(makeCategorySelect(data.category));
+        tr.appendChild(tdCat);
+
+        var tdContent = document.createElement("td");
+        var input = document.createElement("input");
+        input.type = "text";
+        input.className = "item-content";
+        if (data.content) input.value = data.content;
+        tdContent.appendChild(input);
+        tr.appendChild(tdContent);
+
+        var tdStatus = document.createElement("td");
+        tdStatus.appendChild(makeSelect(STATUSES, "item-status", data.status));
+        tr.appendChild(tdStatus);
+
+        var tdDel = document.createElement("td");
+        tdDel.className = "num-col";
+        tdDel.appendChild(makeDeleteBtn(function () {
+          tr.remove();
+          renumber(tbody);
+        }));
+        tr.appendChild(tdDel);
+
+        tbody.appendChild(tr);
+        renumber(tbody);
+        return tr;
+      }
+
+      function addPlanRow(data) {
+        data = data || {};
+        var tbody = document.getElementById("planBody");
+        var tr = document.createElement("tr");
+
+        var tdNo = document.createElement("td");
+        tdNo.className = "num-col row-no";
+        tr.appendChild(tdNo);
+
+        var tdCat = document.createElement("td");
+        tdCat.appendChild(makeCategorySelect(data.category));
+        tr.appendChild(tdCat);
+
+        var tdContent = document.createElement("td");
+        var input = document.createElement("input");
+        input.type = "text";
+        input.className = "item-content";
+        if (data.content) input.value = data.content;
+        tdContent.appendChild(input);
+        tr.appendChild(tdContent);
+
+        var tdDel = document.createElement("td");
+        tdDel.className = "num-col";
+        tdDel.appendChild(makeDeleteBtn(function () {
+          tr.remove();
+          renumber(tbody);
+        }));
+        tr.appendChild(tdDel);
+
+        tbody.appendChild(tr);
+        renumber(tbody);
+        return tr;
+      }
+
+      /* ---------- 業績動態列 ---------- */
+      function addPerfRow(data) {
+        data = data || {};
+        var tbody = document.getElementById("perfBody");
+        var tr = document.createElement("tr");
+
+        var tdSite = document.createElement("td");
+        var siteInput = document.createElement("input");
+        siteInput.type = "text";
+        siteInput.className = "perf-site";
+        siteInput.setAttribute("aria-label", "案名");
+        if (data.site) siteInput.value = data.site;
+        tdSite.appendChild(siteInput);
+        tr.appendChild(tdSite);
+
+        var tdVisitors = document.createElement("td");
+        var visInput = document.createElement("input");
+        visInput.type = "number";
+        visInput.className = "perf-visitors";
+        visInput.min = "0";
+        visInput.setAttribute("inputmode", "numeric");
+        visInput.setAttribute("aria-label", "來人組數");
+        if (data.visitors !== undefined && data.visitors !== "") visInput.value = data.visitors;
+        tdVisitors.appendChild(visInput);
+        tr.appendChild(tdVisitors);
+
+        var tdCalls = document.createElement("td");
+        var callInput = document.createElement("input");
+        callInput.type = "number";
+        callInput.className = "perf-calls";
+        callInput.min = "0";
+        callInput.setAttribute("inputmode", "numeric");
+        callInput.setAttribute("aria-label", "來電通數");
+        if (data.calls !== undefined && data.calls !== "") callInput.value = data.calls;
+        tdCalls.appendChild(callInput);
+        tr.appendChild(tdCalls);
+
+        var tdRevisits = document.createElement("td");
+        var revInput = document.createElement("input");
+        revInput.type = "number";
+        revInput.className = "perf-revisits";
+        revInput.min = "0";
+        revInput.setAttribute("inputmode", "numeric");
+        revInput.setAttribute("aria-label", "回訪組數");
+        if (data.revisits !== undefined && data.revisits !== "") revInput.value = data.revisits;
+        tdRevisits.appendChild(revInput);
+        tr.appendChild(tdRevisits);
+
+        var tdDeals = document.createElement("td");
+        var dealInput = document.createElement("input");
+        dealInput.type = "number";
+        dealInput.className = "perf-deals";
+        dealInput.min = "0";
+        dealInput.setAttribute("inputmode", "numeric");
+        dealInput.setAttribute("aria-label", "成交組數");
+        if (data.deals !== undefined && data.deals !== "") dealInput.value = data.deals;
+        tdDeals.appendChild(dealInput);
+        tr.appendChild(tdDeals);
+
+        var tdSignings = document.createElement("td");
+        var signInput = document.createElement("input");
+        signInput.type = "number";
+        signInput.className = "perf-signings";
+        signInput.min = "0";
+        signInput.setAttribute("inputmode", "numeric");
+        signInput.setAttribute("aria-label", "簽約組數");
+        if (data.signings !== undefined && data.signings !== "") signInput.value = data.signings;
+        tdSignings.appendChild(signInput);
+        tr.appendChild(tdSignings);
+
+        var tdDel = document.createElement("td");
+        tdDel.className = "num-col";
+        tdDel.appendChild(makeDeleteBtn(function () {
+          tr.remove();
+        }));
+        tr.appendChild(tdDel);
+
+        tbody.appendChild(tr);
+        return tr;
+      }
+
+      /* ---------- 初始狀態 ---------- */
+      var PERF_DEFAULT_SITES = ["守善大悅", "守善富琚", "新祐京璽", "謙知樹"];
+
+      function initForm() {
+        document.getElementById("perfBody").innerHTML = "";
+        PERF_DEFAULT_SITES.forEach(function (site) { addPerfRow({ site: site }); });
+        document.getElementById("lastWeekBody").innerHTML = "";
+        addLastWeekRow();
+        document.getElementById("planBody").innerHTML = "";
+        addPlanRow();
+        document.getElementById("adStrategy").value = "";
+      }
+
+      initForm();
+
+      document.getElementById("addPerf").addEventListener("click", function () { addPerfRow(); });
+      document.getElementById("addLastWeek").addEventListener("click", function () { addLastWeekRow(); });
+      document.getElementById("addPlan").addEventListener("click", function () { addPlanRow(); });
+
+      /* ---------- 收集資料 ---------- */
+      // 週次標籤，格式比照後端範例：1151018週（民國年＋月日＋週）
+      function pad2(n) { return (n < 10 ? "0" : "") + n; }
+      var weekLabel = rocYear + pad2(today.getMonth() + 1) + pad2(today.getDate()) + "週";
+
+      // 分類讀 select 的值；若停在「＋新增分類…」未確認，退回上一個選取值
+      function readCategory(tr) {
+        var sel = tr.querySelector(".item-cat");
+        if (!sel) return "";
+        if (sel.value === ADD_CAT_VALUE) return sel._prevValue || "";
+        return sel.value;
+      }
+
+      // 後端欄位名稱是中文，結構欄位（業績／工作事項）以 JSON 字串儲存
+      function collectData() {
+        var performance = [];
+        document.querySelectorAll("#perfBody tr").forEach(function (tr) {
+          performance.push({
+            "案場": tr.querySelector(".perf-site").value,
+            "來人": tr.querySelector(".perf-visitors").value,
+            "來電": tr.querySelector(".perf-calls").value,
+            "回訪": tr.querySelector(".perf-revisits").value,
+            "成交": tr.querySelector(".perf-deals").value,
+            "簽約": tr.querySelector(".perf-signings").value
+          });
+        });
+
+        var lastWeekItems = [];
+        document.querySelectorAll("#lastWeekBody tr").forEach(function (tr) {
+          lastWeekItems.push({
+            "分類": readCategory(tr),
+            "事項": tr.querySelector(".item-content").value,
+            "狀態": tr.querySelector(".item-status").value
+          });
+        });
+
+        var plannedItems = [];
+        document.querySelectorAll("#planBody tr").forEach(function (tr) {
+          plannedItems.push({
+            "分類": readCategory(tr),
+            "事項": tr.querySelector(".item-content").value
+          });
+        });
+
+        return {
+          "週次": weekLabel,
+          "報告日期": dateText,
+          "報告人": reporterPicker.getValue(),
+          "案名": projectPicker.getValue(),
+          "業績": JSON.stringify(performance),
+          "上週工作事項": JSON.stringify(lastWeekItems),
+          "預計本週工作事項": JSON.stringify(plannedItems),
+          "廣告策略": document.getElementById("adStrategy").value
+        };
+      }
+
+      // 後端回傳的結構欄位是 JSON 字串，解析成陣列（已是陣列就直接用）
+      function parseJsonList(value) {
+        if (Array.isArray(value)) return value;
+        if (typeof value === "string" && value) {
+          try {
+            var parsed = JSON.parse(value);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch (e) { return []; }
+        }
+        return [];
+      }
+
+      /* ---------- JSONP ---------- */
+      var jsonpSeq = 0;
+      function jsonp(action, data, onSuccess, onError) {
+        var cbName = "__jsonp_cb_" + (++jsonpSeq) + "_" + Date.now();
+        var script = document.createElement("script");
+        var done = false;
+
+        function cleanup() {
+          delete window[cbName];
+          if (script.parentNode) script.parentNode.removeChild(script);
+        }
+
+        window[cbName] = function (res) {
+          if (done) return;
+          done = true;
+          cleanup();
+          onSuccess(res);
+        };
+        script.onerror = function () {
+          if (done) return;
+          done = true;
+          cleanup();
+          onError();
+        };
+        setTimeout(function () {
+          if (done) return;
+          done = true;
+          cleanup();
+          onError();
+        }, 20000);
+
+        script.src = BACKEND_URL + "?action=" + encodeURIComponent(action)
+          + "&payload=" + encodeURIComponent(JSON.stringify(data || {}))
+          + "&callback=" + cbName;
+        document.body.appendChild(script);
+      }
+
+      /* ---------- 載入上週資料 ---------- */
+      // 只載入「我自己的上一筆」：帶報告人讓後端篩選，多人使用不會載到別人的資料。
+      // 載入後完整還原該筆的所有欄位，並記下編號，之後送出會覆寫同一筆。
+      var currentRecordId = "";
+      document.getElementById("loadBtn").addEventListener("click", function () {
+        var reporter = reporterPicker.getValue();
+        if (!reporter) {
+          showMsg("請先選擇報告人");
+          return;
+        }
+        showMsg("載入中…");
+        jsonp("latest", { "報告人": reporter }, function (res) {
+          if (res && res.ok === false && res.error === "not_found") {
+            showMsg("尚無上一筆資料");
+            return;
+          }
+          if (!res || res.ok === false || !res.data) {
+            showMsg("後端沒有上週資料可載入。");
+            return;
+          }
+          var record = res.data;
+
+          // 表頭：案名、報告人、報告日期照存檔原值回填
+          projectPicker.setValue(record["案名"] || "");
+          if (record["報告人"]) reporterPicker.setValue(record["報告人"]);
+          if (record["報告日期"]) {
+            dateText = record["報告日期"];
+            document.getElementById("todayText").textContent = dateText;
+          }
+
+          // 上週業績：清空現有列，依存檔重建每一列
+          var perfBody = document.getElementById("perfBody");
+          perfBody.innerHTML = "";
+          var perf = parseJsonList(record["業績"]);
+          if (perf.length) {
+            perf.forEach(function (p) {
+              p = p || {};
+              addPerfRow({
+                site: p["案場"] || p["案名"] || "",
+                visitors: p["來人"] !== undefined && p["來人"] !== null ? p["來人"] : (p["來人組數"] || ""),
+                calls: p["來電"] !== undefined && p["來電"] !== null ? p["來電"] : (p["來電通數"] || ""),
+                revisits: p["回訪"] !== undefined && p["回訪"] !== null ? p["回訪"] : (p["回訪組數"] || ""),
+                deals: p["成交"] !== undefined && p["成交"] !== null ? p["成交"] : (p["成交組數"] || ""),
+                signings: p["簽約"] !== undefined && p["簽約"] !== null ? p["簽約"] : (p["簽約組數"] || "")
+              });
+            });
+          } else {
+            addPerfRow();
+          }
+
+          // 上週工作事項：清空現有列，分類／事項／狀態都照存檔原值重建
+          var lastWeekBody = document.getElementById("lastWeekBody");
+          lastWeekBody.innerHTML = "";
+          var lastWeekItems = parseJsonList(record["上週工作事項"]);
+          if (lastWeekItems.length) {
+            lastWeekItems.forEach(function (item) {
+              item = item || {};
+              addLastWeekRow({
+                category: item["分類"] || "",
+                content: item["事項"] || item["事項內容"] || "",
+                status: item["狀態"] || ""
+              });
+            });
+          } else {
+            addLastWeekRow();
+          }
+
+          // 預計本週工作事項：清空現有列，依存檔重建
+          var planBody = document.getElementById("planBody");
+          planBody.innerHTML = "";
+          var planned = parseJsonList(record["預計本週工作事項"]);
+          if (planned.length) {
+            planned.forEach(function (item) {
+              item = item || {};
+              addPlanRow({
+                category: item["分類"] || "",
+                content: item["事項"] || item["事項內容"] || ""
+              });
+            });
+          } else {
+            addPlanRow();
+          }
+
+          // 廣告策略
+          document.getElementById("adStrategy").value = record["廣告策略"] || "";
+
+          // 記下這筆的編號，之後按送出會覆寫這一筆
+          currentRecordId = record["編號"] || res["編號"] || "";
+          showMsg("已載入" + (record["報告日期"] || "") + (record["報告人"] || reporter) + "的資料，再按送出將覆寫此筆" + (currentRecordId ? "（編號 " + currentRecordId + "）" : "") + "。");
+        }, function () {
+          showMsg("載入失敗，請稍後再試。");
+        });
+      });
+
+      /* ---------- 送出儲存 ---------- */
+      // 本次開啟頁面後第一次送出走 create 並記下後端回傳的編號；
+      // 之後再按送出改走 update 覆寫同一列，修改不會在試算表多出一列。
+      // 送出後畫面資料保留不清空，可直接改了再送。
+      document.getElementById("submitBtn").addEventListener("click", function () {
+        var btn = this;
+        btn.disabled = true;
+        showMsg("送出中…");
+        var data = collectData();
+        if (currentRecordId) {
+          data["編號"] = currentRecordId;
+          jsonp("update", data, function (res) {
+            btn.disabled = false;
+            if (res && res.ok) {
+              showMsg("已更新儲存（編號：" + currentRecordId + "）。畫面資料保留，可繼續修改再送出。");
+            } else if (res && res.error === "not_found") {
+              showMsg("找不到原本那筆資料（編號：" + currentRecordId + "），請重新整理頁面後再送出。");
+            } else {
+              showMsg("更新失敗：" + ((res && res.error) || "後端回傳錯誤"));
+            }
+          }, function () {
+            btn.disabled = false;
+            showMsg("送出失敗，請檢查網路後再試。");
+          });
+        } else {
+          jsonp("create", data, function (res) {
+            btn.disabled = false;
+            if (res && res.ok === false) {
+              showMsg("儲存失敗：" + (res.error || "後端回傳錯誤"));
+            } else {
+              if (res && res["編號"]) currentRecordId = res["編號"];
+              showMsg("已送出儲存" + (currentRecordId ? "（編號：" + currentRecordId + "）" : "") + "。畫面資料保留，之後修改再按送出會更新同一筆，不會重複新增。");
+            }
+          }, function () {
+            btn.disabled = false;
+            showMsg("送出失敗，請檢查網路後再試。");
+          });
+        }
+      });
+
+      /* ---------- 開新的一週 ---------- */
+      // 清空整份表單回到初始空白狀態；已記住的編號一併清除，下一次送出會新增一列
+      document.getElementById("newWeekBtn").addEventListener("click", function () {
+        projectPicker.reset();
+        reporterPicker.reset();
+        initForm();
+        dateText = todayDateText;
+        document.getElementById("todayText").textContent = dateText;
+        currentRecordId = "";
+        showMsg("已清空表單，可以開始填寫新的一週。");
+      });
+
+      /* ---------- 列印 ---------- */
+      document.getElementById("printBtn").addEventListener("click", function () {
+        window.print();
+      });
+    </script>
+  </body>
+</html>
