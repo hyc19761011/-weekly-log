@@ -90,7 +90,7 @@
       }
       /* 業績表格欄位多：窄螢幕時此區塊可橫向捲動 */
       .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-      .table-scroll table { min-width: 520px; }
+      .table-scroll table { min-width: 620px; }
       th, td {
         border: 1px solid #000;
         padding: 5px 6px;
@@ -257,12 +257,13 @@
         <div class="table-scroll">
         <table id="perfTable">
           <colgroup>
-            <col style="width:24%" />
-            <col style="width:15%" />
-            <col style="width:15%" />
-            <col style="width:15%" />
-            <col style="width:15%" />
-            <col style="width:15%" />
+            <col style="width:21%" />
+            <col style="width:13%" />
+            <col style="width:13%" />
+            <col style="width:13%" />
+            <col style="width:13%" />
+            <col style="width:13%" />
+            <col style="width:13%" />
             <col style="width:40px" />
           </colgroup>
           <thead>
@@ -271,6 +272,7 @@
               <th>來人組數</th>
               <th>來電通數</th>
               <th>回訪組數</th>
+              <th>有望客戶組數</th>
               <th>成交組數</th>
               <th>簽約組數</th>
               <th aria-label="刪除"></th>
@@ -790,6 +792,17 @@
         tdRevisits.appendChild(revInput);
         tr.appendChild(tdRevisits);
 
+        var tdProspects = document.createElement("td");
+        var prosInput = document.createElement("input");
+        prosInput.type = "number";
+        prosInput.className = "perf-prospects";
+        prosInput.min = "0";
+        prosInput.setAttribute("inputmode", "numeric");
+        prosInput.setAttribute("aria-label", "有望客戶組數");
+        if (data.prospects !== undefined && data.prospects !== "") prosInput.value = data.prospects;
+        tdProspects.appendChild(prosInput);
+        tr.appendChild(tdProspects);
+
         var tdDeals = document.createElement("td");
         var dealInput = document.createElement("input");
         dealInput.type = "number";
@@ -864,6 +877,7 @@
             "來人": tr.querySelector(".perf-visitors").value,
             "來電": tr.querySelector(".perf-calls").value,
             "回訪": tr.querySelector(".perf-revisits").value,
+            "有望客戶": tr.querySelector(".perf-prospects").value,
             "成交": tr.querySelector(".perf-deals").value,
             "簽約": tr.querySelector(".perf-signings").value
           });
@@ -988,6 +1002,7 @@
                 site: p["案場"] || p["案名"] || "",
                 visitors: p["來人"] !== undefined && p["來人"] !== null ? p["來人"] : (p["來人組數"] || ""),
                 calls: p["來電"] !== undefined && p["來電"] !== null ? p["來電"] : (p["來電通數"] || ""),
+                prospects: p["有望客戶"] !== undefined && p["有望客戶"] !== null ? p["有望客戶"] : (p["有望客戶組數"] || ""),
                 revisits: p["回訪"] !== undefined && p["回訪"] !== null ? p["回訪"] : (p["回訪組數"] || ""),
                 deals: p["成交"] !== undefined && p["成交"] !== null ? p["成交"] : (p["成交組數"] || ""),
                 signings: p["簽約"] !== undefined && p["簽約"] !== null ? p["簽約"] : (p["簽約組數"] || "")
